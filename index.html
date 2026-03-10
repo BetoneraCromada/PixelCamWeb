@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0a0a0f">
+  <title>PixelCam</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/camera.css">
+  <link rel="stylesheet" href="css/editor.css">
+  <link rel="stylesheet" href="css/palette.css">
+  <link rel="stylesheet" href="css/modal.css">
+</head>
+
+<body>
+
+  <header>
+    <div class="logo">PIXEL<span>CAM</span></div>
+    <div class="logo-sub">0.03 megapixel experience <span class="badge">BETA</span></div>
+  </header>
+
+  <div class="layout">
+
+    <!-- LEFT -->
+    <div>
+
+      <!-- Camera -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="dot"></div> Câmera ao vivo
+        </div>
+        <div class="camera-area">
+
+          <div class="viewfinder-wrap" id="viewfinderWrap">
+            <div class="cam-inactive" id="camInactive">
+              <div class="cam-inactive-icon">📷</div>
+              <div class="cam-inactive-text">
+                <strong>Câmera desativada</strong>
+                Clique em "Ativar câmera"<br>ou carregue uma foto abaixo
+              </div>
+              <div class="cam-inactive-hint">toque aqui para ativar</div>
+            </div>
+            <video id="videoEl" autoplay playsinline muted></video>
+            <canvas id="canvasPreview"></canvas>
+            <div class="vf-overlay"></div>
+            <div class="vf-corner tl"></div>
+            <div class="vf-corner tr"></div>
+            <div class="vf-corner bl"></div>
+            <div class="vf-corner br"></div>
+            <div class="cam-badge" id="camBadge">● REC</div>
+            <div class="zoom-indicator" id="zoomIndicator">1.0×</div>
+          </div>
+
+          <div class="cam-controls" id="camControls">
+            <div class="cam-ctrl-row">
+              <button class="ctrl-btn" id="btnFlipCam">🔄 Virar câmera</button>
+              <button class="ctrl-btn" id="btnMirror">↔ Espelhar</button>
+              <button class="ctrl-btn" id="btnTimer">⏱ Timer: off</button>
+              <button class="ctrl-btn" id="btnFlash">⚡ Flash</button>
+            </div>
+            <div class="slider-row">
+              <span class="slider-lbl">Zoom</span>
+              <input type="range" class="s-slider" id="zoomSlider" min="1" max="5" step="0.1" value="1">
+              <span class="slider-val" id="zoomVal">1.0×</span>
+            </div>
+            <div class="filter-row">
+              <div class="filter-item">
+                <div class="filter-lbl">Brilho <span id="brightnessVal">0</span></div>
+                <input type="range" class="s-slider red" id="brightnessSlider" min="-80" max="80" value="0">
+              </div>
+              <div class="filter-item">
+                <div class="filter-lbl">Contraste <span id="contrastVal">0</span></div>
+                <input type="range" class="s-slider red" id="contrastSlider" min="-80" max="80" value="0">
+              </div>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn" id="btnStartCam">📷 Ativar câmera</button>
+            <button class="btn primary hidden" id="btnCapture">⚡ Capturar</button>
+          </div>
+
+          <div class="upload-drop" id="uploadDrop">
+            <div>📁 Carregar da galeria</div>
+            <div style="font-size:0.48rem;margin-top:3px;opacity:0.5">JPG · PNG · WEBP</div>
+          </div>
+          <input type="file" id="fileInput" accept="image/*">
+
+        </div>
+      </div>
+
+      <!-- Editor -->
+      <div class="panel" style="margin-top:14px">
+        <div class="panel-header">🎨 Editor de pixels</div>
+        <div class="editor-area">
+
+          <div class="placeholder-msg" id="editorPlaceholder">
+            <div class="icon">🖼️</div>
+            <div>Capture ou carregue uma foto</div>
+          </div>
+
+          <canvas id="canvasEditor" class="hidden"></canvas>
+
+          <div class="colmode-bar" id="colmodeBar">
+            <div class="colmode-label">Modo de revelação</div>
+            <div class="colmode-btns">
+              <button class="colmode-btn active" data-mode="original">📷 Original</button>
+              <button class="colmode-btn" data-mode="palette">🎨 Paleta</button>
+              <button class="colmode-btn" data-mode="depth">🌓 Profund.</button>
+              <button class="colmode-btn" data-mode="duotone">◑ Duotone</button>
+              <button class="colmode-btn" data-mode="grayscale">◻ Cinza</button>
+            </div>
+            <div class="depth-opts hidden" id="depthOpts">
+              <span class="depth-label">Direção:</span>
+              <button class="depth-dir active" data-dir="dark-to-light">⬛→⬜ Escuro→Claro</button>
+              <button class="depth-dir" data-dir="light-to-dark">⬜→⬛ Claro→Escuro</button>
+            </div>
+          </div>
+
+          <div class="editor-tools hidden" id="editorTools">
+            <button class="tool-btn active" id="toolPaint">🖌 Pintar</button>
+            <button class="tool-btn" id="toolFill">🪣 Balde</button>
+            <button class="tool-btn" id="toolErase">✏️ Apagar</button>
+            <button class="tool-btn" id="btnRetake" style="border-color:var(--accent);color:var(--accent)">📷
+              Refazer</button>
+            <button class="tool-btn" style="margin-left:auto" id="btnUndo">↩ Desfazer</button>
+            <button class="tool-btn" id="btnRedo">↪ Refazer</button>
+          </div>
+
+        </div>
+        <div class="statusbar">
+          <span id="statusRes">—</span>
+          <span id="statusTool">Ferramenta: pincel</span>
+          <span style="display:flex;align-items:center;gap:4px">Cor: <span id="statusColorDot"
+              style="width:10px;height:10px;border-radius:2px;display:inline-block;background:#ff3d6e"></span></span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+      <!-- Aspect Ratio -->
+      <div class="panel">
+        <div class="panel-header">⬜ Formato</div>
+        <div class="ar-grid" id="arGrid">
+          <button class="ar-btn active" data-ar="4:3" data-w="4" data-h="3">
+            <svg class="ar-preview" width="28" height="21">
+              <rect width="28" height="21" rx="2" />
+            </svg>4:3
+          </button>
+          <button class="ar-btn" data-ar="16:9" data-w="16" data-h="9">
+            <svg class="ar-preview" width="28" height="16">
+              <rect width="28" height="16" rx="2" />
+            </svg>16:9
+          </button>
+          <button class="ar-btn" data-ar="9:16" data-w="9" data-h="16">
+            <svg class="ar-preview" width="18" height="28">
+              <rect width="18" height="28" rx="2" />
+            </svg>9:16
+          </button>
+          <button class="ar-btn" data-ar="1:1" data-w="1" data-h="1">
+            <svg class="ar-preview" width="22" height="22">
+              <rect width="22" height="22" rx="2" />
+            </svg>1:1
+          </button>
+          <button class="ar-btn" data-ar="3:2" data-w="3" data-h="2">
+            <svg class="ar-preview" width="28" height="19">
+              <rect width="28" height="19" rx="2" />
+            </svg>3:2
+          </button>
+          <button class="ar-btn" data-ar="2:3" data-w="2" data-h="3">
+            <svg class="ar-preview" width="19" height="28">
+              <rect width="19" height="28" rx="2" />
+            </svg>2:3
+          </button>
+        </div>
+      </div>
+
+      <!-- Resolution -->
+      <div class="panel">
+        <div class="panel-header">📐 Resolução</div>
+        <div class="res-grid" id="resGrid">
+          <div class="res-btn" data-base="8">8px<span class="mp">ATOM</span></div>
+          <div class="res-btn" data-base="16">16px<span class="mp">ULTRA</span></div>
+          <div class="res-btn" data-base="32">32px<span class="mp">MICRO</span></div>
+          <div class="res-btn" data-base="48">48px<span class="mp">NANO</span></div>
+          <div class="res-btn" data-base="64">64px<span class="mp">MINI</span></div>
+          <div class="res-btn" data-base="80">80px</div>
+          <div class="res-btn" data-base="96">96px</div>
+          <div class="res-btn active" data-base="160">160px<span class="mp">CLASSIC</span></div>
+          <div class="res-btn" data-base="240">240px</div>
+          <div class="res-btn" data-base="320">320px</div>
+        </div>
+      </div>
+
+      <!-- Current Palette -->
+      <div class="panel">
+        <div class="panel-header">🎨 Paleta atual</div>
+        <div class="palette-area">
+          <div class="palette-grid" id="paletteGrid"></div>
+          <div class="swatch-actions hidden" id="swatchActions">
+            <div class="swatch-act-preview" id="swatchActPreview"></div>
+            <button class="swatch-act-btn edit" id="btnEditSwatch">🎨 Editar</button>
+            <button class="swatch-act-btn remove" id="btnRemoveSwatch">🗑 Remover</button>
+          </div>
+          <div class="add-color-row">
+            <input type="color" id="colorPicker" value="#ff3d6e">
+            <input type="text" class="hex-input" id="hexInput" value="#ff3d6e" maxlength="7" spellcheck="false">
+            <button class="add-btn" id="btnAddColor">+ Cor</button>
+          </div>
+          <div class="palette-actions">
+            <button class="pal-act-btn" id="btnSavePalette">💾 Salvar</button>
+            <button class="pal-act-btn" id="btnRandomPalette">🎲 Aleatório</button>
+            <button class="pal-act-btn danger" id="btnClearPalette">🗑 Limpar</button>
+          </div>
+          <div class="save-form hidden" id="saveForm">
+            <input type="text" class="save-input" id="saveName" placeholder="Nome da paleta..." maxlength="30">
+            <div class="save-actions">
+              <button class="btn primary" id="btnConfirmSave">💾 Salvar</button>
+              <button class="btn" id="btnCancelSave">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Palettes (Presets + Custom) -->
+      <div class="panel">
+        <div class="palette-tabs">
+          <button class="palette-tab active" data-tab="presets">✨ Prontas</button>
+          <button class="palette-tab" data-tab="custom">📂 Minhas <span class="tab-count"
+              id="customCount">0</span></button>
+        </div>
+        <div class="presets-area" id="presetsArea"></div>
+        <div class="presets-area hidden" id="customArea"></div>
+      </div>
+
+      <!-- Export -->
+      <div class="panel">
+        <div class="panel-header">💾 Exportar</div>
+        <div class="wm-row">
+          <span>Marca d'água</span>
+          <label class="toggle">
+            <input type="checkbox" id="wmToggle" checked>
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+        </div>
+        <div class="dl-area">
+          <button class="btn primary" id="btnDownload">⬇ Baixar PNG</button>
+          <div class="share-row">
+            <button class="btn" id="btnCopy">📋 Copiar</button>
+            <button class="btn" id="btnShare">📤 Compartilhar</button>
+          </div>
+          <button class="btn" id="btnReset">🔄 Nova foto</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RESIZE MODAL -->
+  <div class="modal-overlay hidden" id="resizeModal">
+    <div class="modal">
+      <div class="modal-title">Como ajustar a imagem?</div>
+      <div class="modal-options">
+        <div class="modal-option" id="optCrop">
+          <div class="modal-opt-icon">✂️</div>
+          <div class="modal-opt-title">Cortar</div>
+          <div class="modal-opt-desc">Mantém a proporção e corta as bordas</div>
+          <canvas class="modal-opt-preview" id="previewCrop"></canvas>
+        </div>
+        <div class="modal-option" id="optStretch">
+          <div class="modal-opt-icon">↔️</div>
+          <div class="modal-opt-title">Esticar</div>
+          <div class="modal-opt-desc">Estica a imagem para preencher</div>
+          <canvas class="modal-opt-preview" id="previewStretch"></canvas>
+        </div>
+      </div>
+      <button class="modal-cancel" id="btnCancelResize">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <footer>
+    <div class="footer-sig">Feito por <span>Gabriel Pereira</span></div>
+    <div class="footer-copy">© 2026 · Todos os direitos reservados</div>
+  </footer>
+
+  <canvas id="canvasHidden" style="display:none"></canvas>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+
+</html>

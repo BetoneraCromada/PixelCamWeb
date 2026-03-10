@@ -1,0 +1,195 @@
+/* CAMERA AREA */
+.camera-area {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.viewfinder-wrap {
+  position: relative;
+  width: 100%;
+  background: #000;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+#videoEl {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  image-rendering: pixelated;
+  transform-origin: center;
+  transition: transform 0.2s;
+}
+
+#videoEl.mirrored { transform: scaleX(-1); }
+
+#canvasPreview {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  display: none;
+}
+
+/* VIEWFINDER OVERLAY */
+.vf-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 33.3%, rgba(255, 255, 255, 0.025) 33.3%, rgba(255, 255, 255, 0.025) 33.4%),
+    repeating-linear-gradient(90deg, transparent, transparent 33.3%, rgba(255, 255, 255, 0.025) 33.3%, rgba(255, 255, 255, 0.025) 33.4%);
+}
+
+.vf-corner {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-color: var(--accent2);
+  border-style: solid;
+  opacity: 0.7;
+}
+
+.vf-corner.tl { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
+.vf-corner.tr { top: 8px; right: 8px; border-width: 2px 2px 0 0; }
+.vf-corner.bl { bottom: 8px; left: 8px; border-width: 0 0 2px 2px; }
+.vf-corner.br { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
+
+.cam-badge {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.5rem;
+  letter-spacing: 0.15em;
+  color: var(--accent2);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.zoom-indicator {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.55rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  padding: 2px 8px;
+  border-radius: 20px;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  opacity: 0;
+}
+
+.zoom-indicator.show { opacity: 1; }
+
+/* CAPTURE FLASH */
+@keyframes captureFlash {
+  0% { opacity: 0 }
+  15% { opacity: 0.85 }
+  100% { opacity: 0 }
+}
+
+.capture-flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  z-index: 10;
+  pointer-events: none;
+  animation: captureFlash 0.45s ease-out forwards;
+}
+
+/* CAMERA CONTROLS */
+.cam-controls {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cam-controls.active { display: flex; }
+
+.cam-ctrl-row {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.ctrl-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface2);
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  touch-action: manipulation;
+}
+
+.ctrl-btn:hover, .ctrl-btn.active {
+  border-color: var(--accent2);
+  color: var(--accent2);
+}
+
+.ctrl-btn:active { transform: scale(0.96); }
+
+/* CAMERA INACTIVE OVERLAY */
+.cam-inactive {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #000;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+.cam-inactive.hidden { display: none; }
+
+.cam-inactive-icon {
+  font-size: 2.4rem;
+  opacity: 0.35;
+}
+
+.cam-inactive-text {
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.8;
+}
+
+.cam-inactive-text strong {
+  color: var(--accent2);
+  display: block;
+  font-size: 0.65rem;
+}
+
+.cam-inactive-hint {
+  font-size: 0.5rem;
+  color: var(--muted);
+  opacity: 0.5;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* RESPONSIVE */
+@media (max-width: 420px) {
+  .ctrl-btn { font-size: 0.56rem; padding: 6px 8px; }
+}
