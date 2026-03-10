@@ -4,7 +4,7 @@
   <br>
   <em>0.03 megapixel experience</em>
   <br><br>
-  <a href="https://betonercromada.github.io/PixelCamWeb/">Abrir o App</a>
+  <a href="https://betoneracromada.github.io/PixelCamWeb/">Abrir o App</a>
 </p>
 
 ---
